@@ -6,6 +6,8 @@ RUN go get dockerview
 RUN go install dockerview
 ADD static /srv/static
 ADD templates /srv/templates
-EXPOSE 9999
+ENV ADDRESS 0.0.0.0
+ENV PORT 9999
+EXPOSE ${PORT}
 WORKDIR /srv
-CMD /go/bin/dockerview
+CMD /go/bin/dockerview -address ${ADDRESS} -port ${PORT}

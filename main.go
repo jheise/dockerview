@@ -2,6 +2,7 @@ package main
 
 import (
 	// std
+	"flag"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -13,7 +14,9 @@ import (
 )
 
 var (
-	client *docker.Client
+	client  *docker.Client
+	port    string
+	address string
 )
 
 type ContainerNet struct {
@@ -78,6 +81,10 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
+	flag.StringVar(&address, "address", "0.0.0.0", "address to bind to")
+	flag.StringVar(&port, "port", "9999", "port to bind to")
+	flag.Parse()
+
 	endpoint := "unix:///var/run/docker.sock"
 	localclient, err := docker.NewClient(endpoint)
 	if err != nil {
@@ -88,9 +95,10 @@ func init() {
 }
 
 func main() {
+	socket_str := address + ":" + port
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", ListHandler).Methods("GET")
-	fmt.Printf("Listenting on 0.0.0.0:9999\n")
-	http.ListenAndServe("0.0.0.0:9999", router)
+	fmt.Printf("Listenting on %s\n", socket_str)
+	http.ListenAndServe(socket_str, router)
 }
